@@ -14,3 +14,9 @@ Some Study Codes and Projects about SLAM
 4. Eg04_JoinMap
 
     Use PCL(Point Cloud Library) to join map from RGB-D images
+5. Eg05_UseCeres
+
+    Curve fit using Ceres
+6. Eg06_UseG2O
+
+    Curve fit using g2o
