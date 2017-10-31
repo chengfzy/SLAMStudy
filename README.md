@@ -22,4 +22,7 @@ Some Study Codes and Projects about SLAM
     Curve fit using g2o
 7. Eg07_FeatureDetectMatch
 
-    Feature detect and match using OpenCV
+    Feature detect and match using OpenCV, and use features to estimate pose in 2D-2D
+8. Eg08_PoseEstimation2D2D
+
+    Estimate pos 2D-2D
