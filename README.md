@@ -20,3 +20,6 @@ Some Study Codes and Projects about SLAM
 6. Eg06_UseG2O
 
     Curve fit using g2o
+7. Eg07_FeatureDetectMatch
+
+    Feature detect and match using OpenCV
