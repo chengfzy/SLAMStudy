@@ -10,7 +10,7 @@ using namespace cv;
 
 int main() {
     vector<Mat> colorImgs, depthImgs;       // 彩色图与深度图
-    vector<Eigen::Isometry3d> poses;        // 相机位姿
+    vector<Eigen::Isometry3d, Eigen::aligned_allocator<Eigen::Isometry3d>> poses;        // 相机位姿
 
     ifstream fin("../pose.txt");
     if (!fin){
@@ -19,8 +19,8 @@ int main() {
     }
 
     for (int i = 0; i < 5; ++i){
-        colorImgs.emplace_back(imread("../color/" + to_string(i) + ".png", IMREAD_UNCHANGED));
-        depthImgs.emplace_back(imread("../depth/" + to_string(i) + ".pgm", IMREAD_UNCHANGED));
+        colorImgs.emplace_back(imread("../color/" + to_string(i + 1) + ".png", IMREAD_UNCHANGED));
+        depthImgs.emplace_back(imread("../depth/" + to_string(i + 1) + ".pgm", IMREAD_UNCHANGED));
 
         double data[7] = {0};
         for (auto& d :data){
@@ -63,7 +63,7 @@ int main() {
                 p.z = pointWorld[2];
                 p.b = color.data[v * color.step + u * color.channels()];
                 p.g = color.data[v * color.step + u * color.channels() + 1];
-                p.r = color.data[v * color.step + u * color.channels() + 1];
+                p.r = color.data[v * color.step + u * color.channels() + 2];
                 pointCloud->points.emplace_back(p);
             }
         }
