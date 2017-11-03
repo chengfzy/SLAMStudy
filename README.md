@@ -25,4 +25,7 @@ Some Study Codes and Projects about SLAM
     Feature detect and match using OpenCV, and use features to estimate pose in 2D-2D
 8. Eg08_PoseEstimation2D2D
 
-    Estimate pos 2D-2D
+    Estimate camera pos 2D-2D
+9. Eg09_Triangulation
+
+    Triangulation to obtain features' position in 3D from camera pose
