@@ -6,8 +6,8 @@ using namespace std;
 using namespace cv;
 
 int main() {
-    Mat img1 = imread("../1.png", IMREAD_UNCHANGED);
-    Mat img2 = imread("../2.png", IMREAD_UNCHANGED);
+    Mat img1 = imread("../../data/pose_estimation/1.png", IMREAD_UNCHANGED);
+    Mat img2 = imread("../../data/pose_estimation/2.png", IMREAD_UNCHANGED);
 
     // 初始化
     vector<KeyPoint> keypoints1, keypoints2;
