@@ -29,3 +29,6 @@ Some Study Codes and Projects about SLAM
 9. Eg09_Triangulation
 
     Triangulation to obtain features' position in 3D from camera pose
+10. Eg10_PoseEstimation3D2D
+
+    Get camera pose using PnP algorithm, and use bundle adjustment to optimize the pose

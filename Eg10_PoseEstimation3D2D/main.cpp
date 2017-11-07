@@ -1,7 +1,17 @@
 #include <iostream>
+#include <memory>
+#include <chrono>
 #include "opencv2/highgui.hpp"
 #include "opencv2/features2d.hpp"
 #include "opencv2/calib3d.hpp"
+#include "Eigen/Core"
+#include "Eigen/Geometry"
+#include "g2o/core/base_vertex.h"
+#include "g2o/core/base_unary_edge.h"
+#include "g2o/core/block_solver.h"
+#include "g2o/core/optimization_algorithm_levenberg.h"
+#include "g2o/solvers/csparse/linear_solver_csparse.h"
+#include "g2o/types/sba/types_six_dof_expmap.h"
 
 using namespace std;
 using namespace cv;
@@ -60,6 +70,68 @@ Point2d pixel2cam(const Point2d& p, const Mat& K){
 }
 
 
+// Bundle Adjustment
+void bundleAdjust(const vector<Point3f>& points3D, const vector<Point2f>& points2D, const Mat& K, Mat& R, Mat& t){
+    // 初始化g2o
+    typedef g2o::BlockSolver<g2o::BlockSolverTraits<6, 3>> Block;   // pose维度为6,landmark维度为3
+    Block::LinearSolverType* linearSolver = new g2o::LinearSolverCSparse<Block::PoseMatrixType>();      // 线性方程求解器
+    Block* solverPtr = new Block(linearSolver);                    // 矩形块求解器
+    g2o::OptimizationAlgorithmLevenberg* solver = new g2o::OptimizationAlgorithmLevenberg(solverPtr);
+    g2o::SparseOptimizer optimizer;
+    optimizer.setAlgorithm(solver);
+
+    // vertex
+    g2o::VertexSE3Expmap* pose = new g2o::VertexSE3Expmap();        // camera pose
+    Eigen::Matrix3d RMat;
+    RMat << R.at<double>(0, 0), R.at<double>(0, 1), R.at<double>(0, 2),
+            R.at<double>(1, 0), R.at<double>(1, 1), R.at<double>(1, 2),
+            R.at<double>(2, 0), R.at<double>(2, 1), R.at<double>(2, 2);
+    pose->setId(0);
+    pose->setEstimate(g2o::SE3Quat(RMat, Eigen::Vector3d(t.at<double>(0, 0), t.at<double>(1, 0), t.at<double>(2, 0))));
+    optimizer.addVertex(pose);
+
+    // landmarks
+    int index = 1;
+    for (const Point3f p : points3D){
+        g2o::VertexSBAPointXYZ* point = new g2o::VertexSBAPointXYZ();
+        point->setId(index++);
+        point->setEstimate(Eigen::Vector3d(p.x, p.y, p.z));
+        point->setMarginalized(true);   // g2o必须设置marg
+        optimizer.addVertex(point);
+    }
+
+    // parameter: camera intrinsics
+    g2o::CameraParameters* camera = new g2o::CameraParameters(K.at<double>(0, 0), Eigen::Vector2d(K.at<double>(0, 2), K.at<double>(1, 2)), 0);
+    camera->setId(0);
+    optimizer.addParameter(camera);
+
+    // edges
+    index = 1;
+    for (const Point2f p : points2D){
+        g2o::EdgeProjectXYZ2UV* edge = new g2o::EdgeProjectXYZ2UV();
+        edge->setId(index);
+        edge->setVertex(0, dynamic_cast<g2o::VertexSBAPointXYZ*>(optimizer.vertex(index)));
+        edge->setVertex(1, pose);
+        edge->setMeasurement(Eigen::Vector2d(p.x, p.y));
+        edge->setParameterId(0, 0);
+        edge->setInformation(Eigen::Matrix2d::Identity());
+        optimizer.addEdge(edge);
+        ++index;
+    }
+
+    chrono::steady_clock::time_point t1 = chrono::steady_clock::now();
+    optimizer.setVerbose(true);
+    optimizer.initializeOptimization();
+    optimizer.optimize(200);
+    chrono::steady_clock::time_point t2 = chrono::steady_clock::now();
+    chrono::duration<double> timeUsed = chrono::duration_cast<chrono::seconds>(t2 - t1);
+    cout << "optimization costs time: " << timeUsed.count() << " seconds." << endl;
+
+    cout << endl << "after optimization: " << endl;
+    cout << "T = " << endl << Eigen::Isometry3d(pose->estimate()).matrix() << endl;
+}
+
+
 int main() {
     Mat img1 = imread("../../data/pose_estimation/1.png", IMREAD_UNCHANGED);
     Mat img2 = imread("../../data/pose_estimation/2.png", IMREAD_UNCHANGED);
@@ -80,9 +152,9 @@ int main() {
     for (DMatch m : matches){
         ushort d = depth1.ptr<unsigned short>(int(keyPoints1[m.queryIdx].pt.y))[int(keyPoints1[m.queryIdx].pt.x)];
         if (0 == d) continue;       // bad depth
-        float dd = float(d) / 1000.0;
+        float dd = static_cast<float>(d) / 1000.0f;
         Point2d p1 = pixel2cam(keyPoints1[m.queryIdx].pt, K);
-        pts3D.emplace_back(Point3f(p1.x * dd, p1.y * dd, dd));
+        pts3D.emplace_back(Point3f(static_cast<float>(p1.x * dd), static_cast<float>(p1.y * dd), dd));
         pts2D.emplace_back(keyPoints2[m.trainIdx].pt);
     }
 
@@ -95,6 +167,9 @@ int main() {
 
     cout << "R = " << endl << R << endl;
     cout << "t = " << endl << t << endl;
+
+    cout << "calling bundle adjustment" << endl;
+    bundleAdjust(pts3D, pts2D, K, R, t);
 
     return 0;
 }
