@@ -32,3 +32,7 @@ Some Study Codes and Projects about SLAM
 10. Eg10_PoseEstimation3D2D
 
     Get camera pose using PnP algorithm, and use bundle adjustment to optimize the pose
+
+11. Eg11_PoseEstimation3D3D
+
+    Get camera pose using ICP algorithm(SVD and bundle adjustment) based on 3D-3D point pairs.
