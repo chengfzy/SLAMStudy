@@ -1,4 +1,0 @@
-/home/jeffery/Programs/clion-2017.2.3/bin/cmake/bin/cmake -DCMAKE_BUILD_TYPE=Release -G "CodeBlocks - Unix Makefiles" /home/jeffery/Documents/Code/SLAM/Eg11_PoseEstimation3D3D
--- Configuring done
--- Generating done
--- Build files have been written to: /home/jeffery/Documents/Code/SLAM/Eg11_PoseEstimation3D3D/cmake-build-release

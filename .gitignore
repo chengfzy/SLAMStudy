@@ -34,4 +34,10 @@
 # Clion
 .idea/
 cmake-build-debug/
+cmake-build-release/
+
+# QtCreator
+CMakeLists.txt.user
+build-Debug/
+build-Release
 

@@ -1,5 +1,5 @@
-#include <iostream>
 #include <ctime>
+#include <iostream>
 
 #include <Eigen/Core>
 // 稠密矩阵的代数运算(逆、特征值等)
@@ -8,7 +8,6 @@
 using namespace std;
 
 #define MATRIX_SIZE 50
-
 
 int main() {
     // define
@@ -29,7 +28,6 @@ int main() {
         for (int j = 0; j < 2; ++j) {
             cout << matrix_23(i, j) << endl;
         }
-
     }
 
     // vector * matrix
@@ -55,19 +53,19 @@ int main() {
     cout << "eigen value: \n" << eigenSolver.eigenvalues() << endl;
     cout << "eigen vectors: \n" << eigenSolver.eigenvectors() << endl;
 
-
     // solve: matrix_NN * x = v_Nd：直接求逆与矩形分解计算
     Eigen::Matrix<double, MATRIX_SIZE, MATRIX_SIZE> matrix_NN = Eigen::MatrixXd::Random(MATRIX_SIZE, MATRIX_SIZE);
     Eigen::Matrix<double, MATRIX_SIZE, 1> v_Nd = Eigen::MatrixXd::Random(MATRIX_SIZE, 1);
 
     clock_t time_start = clock();
     Eigen::Matrix<double, MATRIX_SIZE, 1> x = matrix_NN.inverse() * v_Nd;
-    cout << "time use in normal inverse is " << 1000 * (clock() - time_start) / (double)CLOCKS_PER_SEC << " ms" << endl;
+    cout << "time use in normal inverse is " << 1000 * (clock() - time_start) / static_cast<double>(CLOCKS_PER_SEC)
+         << " ms" << endl;
 
     time_start = clock();
     x = matrix_NN.colPivHouseholderQr().solve(v_Nd);
-    cout << "time use in QR composition is " << 1000 * (clock() - time_start) / (double)CLOCKS_PER_SEC << " ms" << endl;
-
+    cout << "time use in QR composition is " << 1000 * (clock() - time_start) / static_cast<double>(CLOCKS_PER_SEC)
+         << " ms" << endl;
 
     return 0;
 }

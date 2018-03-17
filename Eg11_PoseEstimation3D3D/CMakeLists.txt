@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.8)
+cmake_minimum_required(VERSION 3.2)
 project(Eg11_PoseEstimation3D3D)
 
 set(CMAKE_CXX_STANDARD 11)
