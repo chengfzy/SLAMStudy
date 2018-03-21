@@ -1,5 +1,6 @@
 #include <fstream>
 #include <iostream>
+#include <opencv2/highgui.hpp>
 #include <opencv2/imgcodecs.hpp>
 #include "Eigen/Geometry"
 #include "pcl/io/pcd_io.h"
@@ -50,8 +51,7 @@ int main() {
         for (int v = 0; v < color.rows; ++v) {
             for (int u = 0; u < color.cols; ++u) {
                 unsigned int d = depth.ptr<unsigned short>(v)[u];  // 深度值
-                if (0 == d)
-                    continue;  // 表示没有测量到
+                if (0 == d) continue;                              // 表示没有测量到
                 Eigen::Vector3d point;
                 point[2] = double(d) / depthScale;
                 point[0] = (u - cx) * point[2] / fx;
