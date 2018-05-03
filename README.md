@@ -25,14 +25,14 @@ Some Study Codes and Projects about SLAM
     Feature detect and match using OpenCV, and use features to estimate pose in 2D-2D
 8. Eg08_PoseEstimation2D2D
 
-    Estimate camera pos 2D-2D
-9. Eg09_Triangulation
+    Estimate camera pos 2D-2D using epipolar geometry costraints, and triangulatio to obtain 3D point in world.
+9. Eg09_PoseEstimation3D2D
 
-    Triangulation to obtain features' position in 3D from camera pose
-10. Eg10_PoseEstimation3D2D
+    Get camera pose using PnP algorithm, and use bundle adjustment to optimize the pose.
 
-    Get camera pose using PnP algorithm, and use bundle adjustment to optimize the pose
-
-11. Eg11_PoseEstimation3D3D
+10. Eg10_PoseEstimation3D3D
 
     Get camera pose using ICP algorithm(SVD and bundle adjustment) based on 3D-3D point pairs.
+
+# Problems
+Some error occurs about LinearSolverCholmod/LinearSolverCSparse, and cannot find solution, try again later.

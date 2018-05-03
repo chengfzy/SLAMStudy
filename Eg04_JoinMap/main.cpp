@@ -1,8 +1,12 @@
 #include <fstream>
 #include <iostream>
+<<<<<<< HEAD
+=======
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgcodecs.hpp>
+>>>>>>> 013098a54979468654910e65880d9dcaa2dcf0a2
 #include "Eigen/Geometry"
+#include "opencv2/imgcodecs.hpp"
 #include "pcl/io/pcd_io.h"
 #include "pcl/point_types.h"
 

@@ -21,5 +21,4 @@ FIND_LIBRARY(CSPARSE_LIBRARY NAMES cxsparse
   )
 
 include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args(CSPARSE DEFAULT_MSG
-  CSPARSE_INCLUDE_DIR CSPARSE_LIBRARY)
+find_package_handle_standard_args(CSPARSE DEFAULT_MSG CSPARSE_INCLUDE_DIR CSPARSE_LIBRARY)

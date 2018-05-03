@@ -1,6 +1,10 @@
 #include <cmath>
 #include <iostream>
 #include "Eigen/Core"
+<<<<<<< HEAD
+#include "Eigen/Geometry"
+=======
+>>>>>>> 013098a54979468654910e65880d9dcaa2dcf0a2
 #include "sophus/se3.hpp"
 #include "sophus/so3.hpp"
 
@@ -9,12 +13,21 @@ using namespace std;
 int main() {
     // 沿z轴旋转90度的旋转矩阵
     Eigen::Matrix3d R = Eigen::AngleAxisd(M_PI / 2, Eigen::Vector3d(0, 0, 1)).toRotationMatrix();
+<<<<<<< HEAD
+
+=======
+>>>>>>> 013098a54979468654910e65880d9dcaa2dcf0a2
     Sophus::SO3d SO3_R(R);    // SO(3)可以直接从旋转矩阵构造
     Eigen::Quaterniond q(R);  // 或者四元数
     Sophus::SO3d SO3_q(q);
     // 输出时，以so(3)形式输出
+<<<<<<< HEAD
+    cout << "SO(3) from matrix = " << SO3_R.matrix();
+    cout << "SO(3) from quaternoion = " << SO3_q.matrix();
+=======
     cout << "SO(3) from matrix = " << SO3_R.log().transpose() << endl;
     cout << "SO(3) from quaternoion = " << SO3_q.log().transpose() << endl;
+>>>>>>> 013098a54979468654910e65880d9dcaa2dcf0a2
 
     // 使用对数映射获得它的李代数
     Eigen::Vector3d so3 = SO3_R.log();

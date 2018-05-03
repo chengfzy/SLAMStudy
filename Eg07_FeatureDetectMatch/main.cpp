@@ -1,6 +1,6 @@
 #include <iostream>
-#include "opencv2/highgui.hpp"
 #include "opencv2/features2d.hpp"
+#include "opencv2/highgui.hpp"
 
 using namespace std;
 using namespace cv;
@@ -34,7 +34,7 @@ int main() {
     double minDist = 10000, maxDist = 0;
     // 找出所有匹配之间的最小距离和最大距离，即是最相似的和最不相似的两组点之间的距离
     for (int i = 0; i < descriptors1.rows; ++i) {
-        double dist = matches[i].distance;
+        double dist = static_cast<double>(matches[static_cast<size_t>(i)].distance);
         if (dist < minDist) minDist = dist;
         if (dist > maxDist) maxDist = dist;
     }
@@ -45,8 +45,8 @@ int main() {
     // 当描述子之间的距离大于两倍最小距离时，即认为匹配有误，但有时最小距离会非常小，设置一个经验值作为下限
     vector<DMatch> goodMatches;
     for (int i = 0; i < descriptors1.rows; ++i) {
-        if (matches[i].distance <= max(2 * minDist, 30.0))
-            goodMatches.emplace_back(matches[i]);
+        if (static_cast<double>(matches[static_cast<size_t>(i)].distance) <= max(2 * minDist, 30.0))
+            goodMatches.emplace_back(matches[static_cast<size_t>(i)]);
     }
 
     // 5.绘制匹配结果

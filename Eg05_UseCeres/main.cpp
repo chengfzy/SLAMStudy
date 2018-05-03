@@ -1,6 +1,7 @@
 #include <chrono>
 #include <iostream>
 #include "ceres/ceres.h"
+#include "glog/logging.h"
 #include "opencv2/core.hpp"
 
 using namespace std;
@@ -9,7 +10,7 @@ using namespace std;
 struct CurveFittingCost {
     CurveFittingCost(double x, double y) : x_(x), y_(y) {}
 
-    // residual calculation, y - exp(a * x^2 + b * x + c)
+    // residual calculation, y - exp(a*x^2 + b*x + c)
     template <typename T>
     bool operator()(const T* const abc, T* residual) const {
         residual[0] = static_cast<T>(y_) - ceres::exp(abc[0] * static_cast<T>(x_) * static_cast<T>(x_) +
@@ -22,6 +23,9 @@ struct CurveFittingCost {
 };
 
 int main(int argc, char* argv[]) {
+    google::InitGoogleLogging(argv[0]);
+    FLAGS_logtostderr = true;
+
     double a{1.0}, b{2.0}, c{1.0};  // true value
     double wSigma{1.0};             // noise sigma
     size_t N{100};                  // data length(size)

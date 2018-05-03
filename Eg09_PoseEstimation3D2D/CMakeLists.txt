@@ -1,4 +1,4 @@
-project(Eg03_UseSophus)
+project(Eg09_PoseEstimation3D2D)
 
 # build the target
 aux_source_directory(./ DIR_SRCS)

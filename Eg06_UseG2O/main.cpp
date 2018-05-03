@@ -6,6 +6,7 @@
 #include "g2o/core/optimization_algorithm_dogleg.h"
 #include "g2o/core/optimization_algorithm_gauss_newton.h"
 #include "g2o/core/optimization_algorithm_levenberg.h"
+#include "g2o/solvers/csparse/linear_solver_csparse.h"
 #include "g2o/solvers/dense/linear_solver_dense.h"
 #include "opencv2/core.hpp"
 
