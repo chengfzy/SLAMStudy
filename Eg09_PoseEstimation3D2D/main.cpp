@@ -7,7 +7,7 @@
 #include "g2o/core/base_vertex.h"
 #include "g2o/core/block_solver.h"
 #include "g2o/core/optimization_algorithm_levenberg.h"
-#include "g2o/solvers/cholmod/linear_solver_cholmod.h"
+//#include "g2o/solvers/cholmod/linear_solver_cholmod.h"
 #include "g2o/solvers/csparse/linear_solver_csparse.h"
 #include "g2o/types/sba/types_six_dof_expmap.h"
 #include "opencv2/calib3d.hpp"
@@ -84,7 +84,7 @@ void bundleAdjust(const vector<Point3f>& points3D, const vector<Point2f>& points
     // 初始化g2o
     //    using Block = BlockSolver<BlockSolverTraits<6, 3>>;  // pose维度为6,landmark维度为3
     unique_ptr<BlockSolver_6_3::LinearSolverType> linearSolver{
-        new LinearSolverCholmod<BlockSolver_6_3::PoseMatrixType>()};
+        new LinearSolverCSparse<BlockSolver_6_3::PoseMatrixType>()};
     OptimizationAlgorithmLevenberg* solver =
         new OptimizationAlgorithmLevenberg(make_unique<BlockSolver_6_3>(move(linearSolver)));
     SparseOptimizer optimizer;  // graph model

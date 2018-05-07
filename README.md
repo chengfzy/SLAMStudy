@@ -33,6 +33,13 @@ Some Study Codes and Projects about SLAM
 10. Eg10_PoseEstimation3D3D
 
     Get camera pose using ICP algorithm(SVD and bundle adjustment) based on 3D-3D point pairs.
+15. Eg15_BagOfWords
+
+    Generate vocabulary from images and calculate the simularity among images, dataset comes from
+    [TUM RGBD dataset](https://vision.in.tum.de/data/datasets/rgbd-dataset/download#). Note the result using large
+    vocabulary file don't seem good enough as books.
 
 # Problems
-Some error occurs about LinearSolverCholmod/LinearSolverCSparse, and cannot find solution, try again later.
+1. Some error occurs about LinearSolverCholmod/LinearSolverCSparse, and cannot find solution, try again later.
+
+    Change FindCXSparse.cmake to shared library, Eg06 will be OK but others not.

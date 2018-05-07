@@ -173,7 +173,6 @@ class EdgeProjectXYZRGBDPose : public g2o::BaseUnaryEdge<3, Vector3d, g2o::Verte
 
 // Bundle Adjustment
 void bundleAdjust(const vector<Point3f>& pts1, const vector<Point3f>& pts2, Mat& R, Mat& t) {
-#if 0
     // initialize
     unique_ptr<BlockSolver_6_3::LinearSolverType> linearSolver{
         new LinearSolverCSparse<BlockSolver_6_3::PoseMatrixType>()};
@@ -182,6 +181,7 @@ void bundleAdjust(const vector<Point3f>& pts1, const vector<Point3f>& pts2, Mat&
     SparseOptimizer optimizer;
     optimizer.setAlgorithm(solver);
 
+#if 0
     // vertex: camera pose
     VertexSE3Expmap* pose = new VertexSE3Expmap();
     pose->setId(0);
