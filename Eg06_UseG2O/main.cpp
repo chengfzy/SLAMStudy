@@ -69,9 +69,9 @@ int main(int argc, char* argv[]) {
     // construct graph optimization
     using Block = BlockSolver<g2o::BlockSolverTraits<3, 1>>;  // Block, parameters dims = 3, residual dim = 1
     // linear solver, dense incremental equation
-    unique_ptr<Block::LinearSolverType> linearSolver{new LinearSolverCSparse<Block::PoseMatrixType>()};
+    Block::LinearSolverType* linearSolver = new LinearSolverCSparse<Block::PoseMatrixType>();
     // graph solver, could be Gaussian-Newton, LM, and DogLeg
-    OptimizationAlgorithmLevenberg* optAlg = new OptimizationAlgorithmLevenberg(make_unique<Block>(move(linearSolver)));
+    OptimizationAlgorithmLevenberg* optAlg = new OptimizationAlgorithmLevenberg(new Block(linearSolver));
     SparseOptimizer optimizer;  // graph model
     optimizer.setAlgorithm(optAlg);
     optimizer.setVerbose(true);  // debug output
