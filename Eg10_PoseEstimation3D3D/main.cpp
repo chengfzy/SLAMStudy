@@ -174,14 +174,12 @@ class EdgeProjectXYZRGBDPose : public g2o::BaseUnaryEdge<3, Vector3d, g2o::Verte
 // Bundle Adjustment
 void bundleAdjust(const vector<Point3f>& pts1, const vector<Point3f>& pts2, Mat& R, Mat& t) {
     // initialize
-    unique_ptr<BlockSolver_6_3::LinearSolverType> linearSolver{
-        new LinearSolverCSparse<BlockSolver_6_3::PoseMatrixType>()};
-    OptimizationAlgorithmLevenberg* solver =
-        new OptimizationAlgorithmLevenberg(make_unique<BlockSolver_6_3>(move(linearSolver)));
+    BlockSolver_6_3::LinearSolverType* linearSolver = new LinearSolverCSparse<BlockSolver_6_3::PoseMatrixType>();
+    OptimizationAlgorithmLevenberg* solver = new OptimizationAlgorithmLevenberg(new BlockSolver_6_3(linearSolver));
     SparseOptimizer optimizer;
     optimizer.setAlgorithm(solver);
+    optimizer.setVerbose(true);
 
-#if 0
     // vertex: camera pose
     VertexSE3Expmap* pose = new VertexSE3Expmap();
     pose->setId(0);
@@ -212,7 +210,6 @@ void bundleAdjust(const vector<Point3f>& pts1, const vector<Point3f>& pts2, Mat&
 
     cout << endl << "after optimization: " << endl;
     cout << "T = " << endl << Isometry3d(pose->estimate()).matrix() << endl;
-#endif
 }
 
 int main() {

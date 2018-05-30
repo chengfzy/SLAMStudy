@@ -7,8 +7,8 @@
 #include "g2o/core/base_vertex.h"
 #include "g2o/core/block_solver.h"
 #include "g2o/core/optimization_algorithm_levenberg.h"
-//#include "g2o/solvers/cholmod/linear_solver_cholmod.h"
-#include "g2o/solvers/csparse/linear_solver_csparse.h"
+#include "g2o/solvers/cholmod/linear_solver_cholmod.h"
+//#include "g2o/solvers/csparse/linear_solver_csparse.h"
 #include "g2o/types/sba/types_six_dof_expmap.h"
 #include "opencv2/calib3d.hpp"
 #include "opencv2/features2d.hpp"
@@ -83,20 +83,17 @@ void bundleAdjust(const vector<Point3f>& points3D, const vector<Point2f>& points
     cout << "=========================== Pose Estimation 3D-2D using Bundle Adjust ===========================" << endl;
     // 初始化g2o
     //    using Block = BlockSolver<BlockSolverTraits<6, 3>>;  // pose维度为6,landmark维度为3
-    unique_ptr<BlockSolver_6_3::LinearSolverType> linearSolver{
-        new LinearSolverCSparse<BlockSolver_6_3::PoseMatrixType>()};
-    OptimizationAlgorithmLevenberg* solver =
-        new OptimizationAlgorithmLevenberg(make_unique<BlockSolver_6_3>(move(linearSolver)));
+    BlockSolver_6_3::LinearSolverType* linearSolver = new LinearSolverCholmod<BlockSolver_6_3::PoseMatrixType>();
+    OptimizationAlgorithmLevenberg* solver = new OptimizationAlgorithmLevenberg(new BlockSolver_6_3(linearSolver));
     SparseOptimizer optimizer;  // graph model
     optimizer.setAlgorithm(solver);
     optimizer.setVerbose(true);  // debug output
 
     // add vertex(pose) to graph
+    VertexSE3Expmap* pose = new VertexSE3Expmap();  // camera pose
     Eigen::Matrix3d RMat;
     RMat << R.at<double>(0, 0), R.at<double>(0, 1), R.at<double>(0, 2), R.at<double>(1, 0), R.at<double>(1, 1),
         R.at<double>(1, 2), R.at<double>(2, 0), R.at<double>(2, 1), R.at<double>(2, 2);
-#if 0
-    VertexSE3Expmap* pose = new VertexSE3Expmap();  // camera pose
     pose->setId(0);
     pose->setEstimate(SE3Quat(RMat, Eigen::Vector3d(t.at<double>(0, 0), t.at<double>(1, 0), t.at<double>(2, 0))));
     optimizer.addVertex(pose);
@@ -144,7 +141,6 @@ void bundleAdjust(const vector<Point3f>& points3D, const vector<Point2f>& points
     // print out result
     cout << endl << "after optimization: " << endl;
     cout << "T = " << endl << Eigen::Isometry3d(pose->estimate()).matrix() << endl;
-#endif
 }
 
 int main() {
