@@ -106,7 +106,7 @@ void triangulation(const vector<KeyPoint>& keyPoints1, const vector<KeyPoint>& k
               R.at<double>(1, 0), R.at<double>(1, 1), R.at<double>(1, 2), t.at<double>(1, 0), R.at<double>(2, 0),
               R.at<double>(2, 1), R.at<double>(2, 2), t.at<double>(2, 0));
 
-    // convert points(pixel) from image frame to noramlized camera frame
+    // convert points(pixel) from image frame to normalized camera frame
     vector<Point2f> pts1, pts2;
     for (auto m : matches) {
         pts1.emplace_back(pixel2cam(keyPoints1[static_cast<size_t>(m.queryIdx)].pt, kCameraMatrix));
