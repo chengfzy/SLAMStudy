@@ -6,6 +6,11 @@ set(CMAKE_CXX_STANDARD 14)
 # cmake modules
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
+# projects build setting
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+
 # libraries
 find_package(Eigen3 REQUIRED)   # Eigen
 find_package(Sophus REQUIRED)   # Sophus
@@ -36,6 +41,9 @@ set(THIRD_LIBS ${THIRD_LIBS} gflags glog ${SOPHUS_LIBRARIES} ${CERES_LIBRARIES} 
         ${DBoW3_LIBS}
         )
 
+# include common directory
+include_directories(common)
+
 # sub-module
 add_subdirectory(Eg01_UseEigen)
 add_subdirectory(Eg02_UseGeometry)
@@ -47,9 +55,13 @@ add_subdirectory(Eg07_FeatureDetectMatch)
 add_subdirectory(Eg08_PoseEstimation2D2D)
 add_subdirectory(Eg09_PoseEstimation3D2D)
 add_subdirectory(Eg10_PoseEstimation3D3D)
+add_subdirectory(Eg11_Triangulation)
 
 # G2O Study
 add_subdirectory(g2o01_CurveFit)
 add_subdirectory(g2o02_CircleFit)
+
+# Sphere Optimization
+add_subdirectory(Sphere)
 
 #add_subdirectory(Eg15_BagOfWords)
