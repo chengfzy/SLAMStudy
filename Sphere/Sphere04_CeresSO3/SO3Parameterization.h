@@ -5,11 +5,11 @@
 class SO3Parameterization : public ceres::LocalParameterization {
    public:
     virtual bool Plus(const double* x, const double* delta, double* x_plus_delta) const {
-        Eigen::Map<const Sophus::SO3d> T0(x);
+        Eigen::Map<const Sophus::SO3d> R0(x);
         Eigen::Map<const Eigen::Matrix<double, 3, 1>> dPhi(delta);
-        Eigen::Map<Sophus::SO3d> T1(x_plus_delta);
+        Eigen::Map<Sophus::SO3d> R1(x_plus_delta);
 
-        T1 = T0 * Sophus::SO3d::exp(dPhi);
+        R1 = R0 * Sophus::SO3d::exp(dPhi);
         return true;
     }
 
@@ -21,9 +21,9 @@ class SO3Parameterization : public ceres::LocalParameterization {
         return true;
     }
 
-    // Size of x: 7
+    // Size of x: 4
     virtual int GlobalSize() const { return Sophus::SO3d::num_parameters; }
 
-    // Size of delta: 6
+    // Size of delta: 3
     virtual int LocalSize() const { return Sophus::SO3d::DoF; }
 };
