@@ -32,7 +32,7 @@ Some Study Codes and Projects about SLAM
 # G2O Examples
 1. g2o01_CurveFit   \
     Using g2o for curve fitting.
-    Ref: [curve_fitting.cpp](https://github.com/RainerKuemmerle/g2o/blob/master/g2o/examples/data_fitting/curve_fit.cpp)
+    Ref: https://github.com/RainerKuemmerle/g2o/blob/master/g2o/examples/data_fitting/curve_fit.cpp.
 1. g2o02_CircleFit  \
     Using g2o for circle fitting, and compare with another solution, construct a linear least square problem solved by Eigen.
     Ref: [circle_fit.cpp](https://github.com/RainerKuemmerle/g2o/blob/master/g2o/examples/data_fitting/circle_fit.cpp)
@@ -52,6 +52,12 @@ Read the data from file sphere2500.g20, and then optimize it with different meth
     for local parameterization.
 1. Sphere05_CeresSE3    \
     Optimize it using ceres, pose(rotation and translation) is represented by SE3 with SE3Parameterization.
+1. Sphere06_CeresPoseParameterization   \
+    Same as Sphere02_CeresQuaternion, but the parameter block are pose(quater and position), and use defined
+    parameterization method, $q = q0 \times Exp(\delta phi), p = p0 + q0 \times \delta p \times \q0^*$. But
+    the cost function are calculated by AutoDiff using Jet, and found that the jacobians calculation may be
+    some error and the result will not convergency. If change the cost function to SizedFunction maybe solve
+    this problem.
 
 # Problems
 1. Some error occurs about LinearSolverCholmod/LinearSolverCSparse, and cannot find solution, try again later.

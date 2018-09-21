@@ -1,6 +1,7 @@
 #include <chrono>
 #include <iostream>
 #include <memory>
+#include "Common.hpp"
 #include "Eigen/Core"
 #include "Eigen/Geometry"
 #include "g2o/core/base_unary_edge.h"
@@ -8,7 +9,7 @@
 #include "g2o/core/block_solver.h"
 #include "g2o/core/optimization_algorithm_levenberg.h"
 #include "g2o/solvers/cholmod/linear_solver_cholmod.h"
-//#include "g2o/solvers/csparse/linear_solver_csparse.h"
+#include "g2o/solvers/csparse/linear_solver_csparse.h"
 #include "g2o/types/sba/types_six_dof_expmap.h"
 #include "opencv2/calib3d.hpp"
 #include "opencv2/features2d.hpp"
@@ -24,6 +25,7 @@ const Mat kCameraMatrix = (Mat_<double>(3, 3) << 520.9, 0, 325.1, 0, 521.0, 249.
 // find keyPoints and matches
 void findFeatureMatch(const Mat& img1, const Mat& img2, vector<KeyPoint>& keyPoints1, vector<KeyPoint>& keyPoints2,
                       vector<DMatch>& goodMatches, bool showMatchImage = true) {
+    cout << subSection("find feature match") << endl;
     Mat descriptors1, descriptors2;
     Ptr<FeatureDetector> detector = ORB::create();
     Ptr<DescriptorExtractor> descriptor = ORB::create();
@@ -80,17 +82,17 @@ Point2d pixel2cam(const Point2d& p, const Mat& K) {
 
 // Bundle Adjustment
 void bundleAdjust(const vector<Point3f>& points3D, const vector<Point2f>& points2D, const Mat& K, Mat& R, Mat& t) {
-    cout << "=========================== Pose Estimation 3D-2D using Bundle Adjust ===========================" << endl;
+    cout << section("Pose Estimation 3D-2D using Bundle Adjust") << endl;
     // 初始化g2o
-    //    using Block = BlockSolver<BlockSolverTraits<6, 3>>;  // pose维度为6,landmark维度为3
-    BlockSolver_6_3::LinearSolverType* linearSolver = new LinearSolverCholmod<BlockSolver_6_3::PoseMatrixType>();
-    OptimizationAlgorithmLevenberg* solver = new OptimizationAlgorithmLevenberg(new BlockSolver_6_3(linearSolver));
+    // using Block = BlockSolver<BlockSolverTraits<6, 3>>;  // pose维度为6,landmark维度为3
+    OptimizationAlgorithmLevenberg* solver = new OptimizationAlgorithmLevenberg(
+        std::make_unique<BlockSolver_6_3>(std::make_unique<LinearSolverCSparse<BlockSolver_6_3::PoseMatrixType>>()));
     SparseOptimizer optimizer;  // graph model
     optimizer.setAlgorithm(solver);
     optimizer.setVerbose(true);  // debug output
 
-    // add vertex(pose) to graph
-    VertexSE3Expmap* pose = new VertexSE3Expmap();  // camera pose
+    // add vertex(camera pose) to graph
+    VertexSE3Expmap* pose = new VertexSE3Expmap();  // camera pose, SIGSEGV error for this code, still solved
     Eigen::Matrix3d RMat;
     RMat << R.at<double>(0, 0), R.at<double>(0, 1), R.at<double>(0, 2), R.at<double>(1, 0), R.at<double>(1, 1),
         R.at<double>(1, 2), R.at<double>(2, 0), R.at<double>(2, 1), R.at<double>(2, 2);
@@ -98,7 +100,7 @@ void bundleAdjust(const vector<Point3f>& points3D, const vector<Point2f>& points
     pose->setEstimate(SE3Quat(RMat, Eigen::Vector3d(t.at<double>(0, 0), t.at<double>(1, 0), t.at<double>(2, 0))));
     optimizer.addVertex(pose);
 
-    // add edge(3D landmarks) to graph
+    // add vertex(3D landmarks) to graph
     int index{1};
     for (auto p : points3D) {
         VertexSBAPointXYZ* point = new VertexSBAPointXYZ();
@@ -115,7 +117,7 @@ void bundleAdjust(const vector<Point3f>& points3D, const vector<Point2f>& points
     camera->setId(0);
     optimizer.addParameter(camera);
 
-    // add edges(2D measurments) to graph
+    // add edges(2D measurements) to graph
     index = 1;
     for (auto p : points2D) {
         EdgeProjectXYZ2UV* edge = new EdgeProjectXYZ2UV();
@@ -171,8 +173,8 @@ int main() {
     }
     cout << "3D-2D pairs = " << pts3D.size() << endl;
 
-    // estiamte camera motion using 3D-2D points pair and EPnP method
-    cout << "================================ Pose Estimation 3D-2D using PnP ================================" << endl;
+    // estimate camera motion using 3D-2D points pair and EPnP method
+    cout << section("Pose Estimation 3D-2D using PnP") << endl;
     // calculate camera motion R, t. could use another method, like EPnP, DLS etc.
     Mat R, r, t;
     solvePnP(pts3D, pts2D, kCameraMatrix, Mat(), r, t, false, SOLVEPNP_EPNP);

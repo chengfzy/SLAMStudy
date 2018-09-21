@@ -1,5 +1,6 @@
 #include <chrono>
 #include <iostream>
+#include "Common.hpp"
 #include "g2o/core/base_unary_edge.h"
 #include "g2o/core/base_vertex.h"
 #include "g2o/core/block_solver.h"
@@ -8,10 +9,9 @@
 #include "g2o/core/optimization_algorithm_levenberg.h"
 #include "g2o/solvers/csparse/linear_solver_csparse.h"
 #include "g2o/solvers/dense/linear_solver_dense.h"
-#include "opencv2/core.hpp"
+#include "g2o/stuff/sampler.h"
 
 using namespace std;
-using namespace cv;
 using namespace g2o;
 
 // Curve Fitting Vertex, the parameter of a, b and c. <Parameters Dims, Parameters Type>
@@ -34,11 +34,11 @@ class CurveFittingEdge : public BaseUnaryEdge<1, double, CurveFittingVertex> {
    public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
-    CurveFittingEdge(double x) : BaseUnaryEdge(), x_(x) {}
+    CurveFittingEdge(const double& x) : BaseUnaryEdge(), x_(x) {}
 
     // residual
     void computeError() override {
-        const CurveFittingVertex* v = static_cast<const CurveFittingVertex*>(_vertices[0]);
+        const CurveFittingVertex* v = dynamic_cast<const CurveFittingVertex*>(_vertices[0]);
         const Eigen::Vector3d abc = v->estimate();
         _error(0, 0) = _measurement - exp(abc(0, 0) * x_ * x_ + abc(1, 0) * x_ + abc(2, 0));
     }
@@ -56,22 +56,22 @@ int main(int argc, char* argv[]) {
     size_t N{100};                  // data length(size)
 
     // generating data, y = exp(a*x^2 + b*x + c) + w
-    cout << "generating data..." << endl;
+    cout << section("generating data") << endl;
     vector<double> xData, yData;
-    cv::RNG rng;  // random generator
     for (size_t i = 0; i < N; ++i) {
         double x = i / 100.0;
         xData.emplace_back(x);
-        yData.emplace_back(exp(a * x * x + b * x + c) + rng.gaussian(wSigma));
+        yData.emplace_back(exp(a * x * x + b * x + c) + g2o::Sampler::gaussRand(0, wSigma));
         cout << "[" << i << "] " << xData[i] << ", " << yData[i] << endl;
     }
 
-    // construct graph optimization
-    using Block = BlockSolver<g2o::BlockSolverTraits<3, 1>>;  // Block, parameters dims = 3, residual dim = 1
-    // linear solver, dense incremental equation
-    Block::LinearSolverType* linearSolver = new LinearSolverCSparse<Block::PoseMatrixType>();
+    // type definitions
+    using BlockSolver = BlockSolver<g2o::BlockSolverTraits<3, 1>>;  // Block, parameters dims = 3, residual dim = 1
+    using LinearSolver = g2o::LinearSolverCSparse<BlockSolver::PoseMatrixType>;
+
     // graph solver, could be Gaussian-Newton, LM, and DogLeg
-    OptimizationAlgorithmLevenberg* optAlg = new OptimizationAlgorithmLevenberg(new Block(linearSolver));
+    OptimizationAlgorithmLevenberg* optAlg =
+        new OptimizationAlgorithmLevenberg(std::make_unique<BlockSolver>(std::make_unique<LinearSolver>()));
     SparseOptimizer optimizer;  // graph model
     optimizer.setAlgorithm(optAlg);
     optimizer.setVerbose(true);  // debug output
@@ -99,9 +99,10 @@ int main(int argc, char* argv[]) {
     optimizer.optimize(100);
     auto t2 = chrono::steady_clock::now();
     auto timeUsed = chrono::duration_cast<chrono::duration<double, std::milli>>(t2 - t1);  // milli: ms, micro: us
-    cout << "solve time used = " << timeUsed.count() << " ms" << endl;
 
     // print the result
+    cout << section("result") << endl;
+    cout << "solve time used = " << timeUsed.count() << " ms" << endl;
     Eigen::Vector3d absEstimated = v->estimate();
     cout << "estimated = " << absEstimated.transpose() << endl;
 

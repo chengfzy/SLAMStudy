@@ -32,13 +32,13 @@ include_directories(
         ${G2O_INCLUDE_DIRS}         # G2O
         ${DBoW3_INCLUDE_DIRS}       # DBoW3
 )
+set(G2O_LIBS g2o_core g2o_stuff g2o_opengl_helper g2o_incremental g2o_interface g2o_csparse_extension g2o_types_data
+        g2o_types_icp g2o_types_sba g2o_types_sclam2d g2o_types_sim3 g2o_types_slam2d g2o_types_slam2d_addons
+        g2o_types_slam3d g2o_types_slam3d_addons g2o_solver_cholmod g2o_solver_csparse g2o_solver_dense #g2o_solver_eigen
+        g2o_solver_pcg g2o_solver_slam2d_linear g2o_solver_structure_only csparse ${CSPARSE_LIBRARY}
+        ${CHOLMOD_LIBRARY})
 set(THIRD_LIBS ${THIRD_LIBS} gflags glog ${SOPHUS_LIBRARIES} ${CERES_LIBRARIES} ${OpenCV_LIBS} ${PCL_LIBRARIES}
-        ${CSPARSE_LIBRARY} ${CHOLMOD_LIBRARY}
-        g2o_core g2o_stuff g2o_types_data g2o_types_icp g2o_types_sba g2o_types_sclam2d g2o_types_sim3 g2o_types_slam2d
-        g2o_types_slam2d_addons g2o_types_slam3d g2o_types_slam3d_addons g2o_csparse_extension g2o_solver_cholmod
-        g2o_solver_csparse g2o_solver_dense g2o_solver_eigen g2o_solver_pcg g2o_solver_slam2d_linear
-        g2o_solver_structure_only g2o_opengl_helper
-        ${DBoW3_LIBS}
+        ${G2O_LIBS} ${DBoW3_LIBS}
         )
 
 # include common directory

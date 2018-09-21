@@ -5,6 +5,7 @@
 
 #include <iostream>
 #include <vector>
+#include "Common.hpp"
 #include "Eigen/Cholesky"
 #include "g2o/core/base_unary_edge.h"
 #include "g2o/core/base_vertex.h"
@@ -13,26 +14,14 @@
 #include "g2o/solvers/csparse/linear_solver_csparse.h"
 #include "g2o/stuff/sampler.h"
 
-#include <chrono>
-#include <iostream>
-#include "g2o/core/base_unary_edge.h"
-#include "g2o/core/base_vertex.h"
-#include "g2o/core/block_solver.h"
-#include "g2o/core/optimization_algorithm_dogleg.h"
-#include "g2o/core/optimization_algorithm_gauss_newton.h"
-#include "g2o/core/optimization_algorithm_levenberg.h"
-#include "g2o/solvers/csparse/linear_solver_csparse.h"
-#include "g2o/solvers/dense/linear_solver_dense.h"
-#include "opencv2/core.hpp"
-
 using namespace std;
 using namespace g2o;
 using namespace Eigen;
 
 // compute the error of the input paramter for the points
 double errorOfSolution(const vector<Vector2d>& points, const Vector3d& circleParams) {
-    Vector2d center = circleParams.head<2>();
-    double radius = circleParams(2);
+    const Vector2d center = circleParams.head<2>();
+    const double radius = circleParams(2);
     double error{0};
 
     for (auto& p : points) {
@@ -49,26 +38,39 @@ class CircleVertex : public BaseVertex<3, Vector3d> {
    public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
-    bool read(istream&) override { return false; }
+    bool read(istream&) override {
+        cout << __PRETTY_FUNCTION__ << " not implemented yet" << endl;
+        return false;
+    }
 
-    bool write(ostream&) const override { return false; }
+    bool write(ostream&) const override {
+        cout << __PRETTY_FUNCTION__ << " not implemented yet" << endl;
+        return false;
+    }
 
-   protected:
     void setToOriginImpl() override { _estimate << 0, 0, 0; }
 
-    void oplusImpl(const double* v) override { _estimate += Vector3d(v); }
+    void oplusImpl(const double* v) override { _estimate += Eigen::Map<const Eigen::Vector3d>(v); }
 };
 
 /**
  * @brief Measurement for a point on the circle
- * The error function computes the distance of the point to the center - the radius of the circle
+ * The error function computes the distance of the point to the center - the radius of the circle, the measurement is
+ * the point which is on the circle
  */
 class CircleEdge : public BaseUnaryEdge<1, Vector2d, CircleVertex> {
    public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
-    bool read(istream&) override { return false; }
-    bool write(ostream&) const override { return false; }
+    bool read(istream&) override {
+        cout << __PRETTY_FUNCTION__ << " not implemented yet" << endl;
+        return false;
+    }
+
+    bool write(ostream&) const override {
+        cout << __PRETTY_FUNCTION__ << " not implemented yet" << endl;
+        return false;
+    }
 
     void computeError() override {
         const CircleVertex* v = static_cast<const CircleVertex*>(vertex(0));
@@ -85,6 +87,7 @@ int main(int argc, char* argv[]) {
     const size_t N{100};  // data length
 
     // generate random data
+    cout << section("generate random data") << endl;
     vector<Vector2d> points(N);
     for (size_t i = 0; i < N; ++i) {
         double r = g2o::Sampler::gaussRand(radius, 0.05);
@@ -93,11 +96,14 @@ int main(int argc, char* argv[]) {
         points[i].y() = center.y() + r * sin(angle);
     }
 
+    // type definitions
+    using BlockSolver = g2o::BlockSolver<BlockSolverTraits<3, 1>>;
+    using LinearSolver = g2o::LinearSolverCSparse<BlockSolver::PoseMatrixType>;
+
     // setup the solver
-    using Block = BlockSolver<BlockSolverTraits<3, 1>>;
-    Block::LinearSolverType* linearSolver = new LinearSolverCSparse<Block::PoseMatrixType>();
-    OptimizationAlgorithmLevenberg* optAlg = new OptimizationAlgorithmLevenberg(new Block(linearSolver));
     SparseOptimizer optimizer;
+    OptimizationAlgorithmLevenberg* optAlg =
+        new OptimizationAlgorithmLevenberg(std::make_unique<BlockSolver>(std::make_unique<LinearSolver>()));
     optimizer.setAlgorithm(optAlg);
 
     // add parameter vertex to graph
@@ -122,7 +128,7 @@ int main(int argc, char* argv[]) {
     optimizer.optimize(100);
 
     // print the result
-    cout << "Optimization Result:" << endl;
+    cout << section("Optimization Result") << endl;
     cout << "center = (" << v->estimate()(0) << ", " << v->estimate()(1) << "), radius = " << v->estimate()(2) << endl;
     cout << "error = " << errorOfSolution(points, v->estimate()) << endl;
 
@@ -143,7 +149,7 @@ int main(int argc, char* argv[]) {
     Vector3d x = (A.transpose() * A).ldlt().solve(A.transpose() * b);
     // calculate r
     x(2) = sqrt(pow(x(0), 2) + pow(x(1), 2) - x(2));
-    cout << endl << "Linear Least Square Solution:" << endl;
+    cout << section("Linear Least Square Solution") << endl;
     cout << "center = (" << x(0) << ", " << x(1) << "), radius = " << x(2) << endl;
     cout << "error = " << errorOfSolution(points, x) << endl;
 }
