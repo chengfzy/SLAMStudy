@@ -63,3 +63,6 @@ Read the data from file sphere2500.g20, and then optimize it with different meth
 1. Some error occurs about LinearSolverCholmod/LinearSolverCSparse, and cannot find solution, try again later.
 
     Change FindCXSparse.cmake to shared library, Eg06 will be OK but others not.
+
+# Note
+1. This repository will not be maintained right now, some of the example will be move to [CPlusPlusStudy](https://github.com/chengfzy/CPlusPlusStudy) and [VisionStudy](https://github.com/chengfzy/VisionStudy) with more better project stucture.
